@@ -1,5 +1,6 @@
 import math
 import numpy as np 
+from sigfig import round
 
 𝜋 = math.pi
 def crear_matriz ( tam_matriz:int )->None :
@@ -43,7 +44,7 @@ def mostrar_matriz( matriz:list ) -> None :
             cantidad_cifras = len(str(valor))
             valor_espaciado = str(valor)
 
-            for i in range(19-cantidad_cifras):
+            for i in range(22-cantidad_cifras):
                 valor_espaciado += " "
             print( valor_espaciado, end="|")
 
@@ -65,12 +66,12 @@ def hallar_b(matriz:list , vector_x:list) -> list :
     
     return np.array(vector_b)
 
+
 def crear_matriz_aumentada(matriz:list, vector_b: list ) -> list :
     matriz_aumentada = np.concatenate((matriz,vector_b),axis=1)
-    matriz_aumentada_copia = np.copy(matriz_aumentada)
+    #matriz_aumentada_copia = np.copy(matriz_aumentada)
 
-    return matriz_aumentada_copia
-
+    return matriz_aumentada
 
 
 def aplicar_gauss(mat_ab:list) -> list :
@@ -93,10 +94,9 @@ def aplicar_gauss(mat_ab:list) -> list :
     return lista_multiplicadores
 
 
-
-
-def sustitucion_hacia_atras(matriz, b):
+def sustitucion_hacia_atras(matriz:list, vector_b_escalonado:list):
     n = len(matriz)
+   
     x = [0] * n
 
     for i in range(n-1, -1, -1):
@@ -105,9 +105,28 @@ def sustitucion_hacia_atras(matriz, b):
         for j in range(i+1, n):
             suma += matriz[i][j] * x[j]
 
-        x[i] = (b[i] - suma) / matriz[i][i]
+        x[i] = (vector_b_escalonado[i] - suma) / matriz[i][i]
     
-    print(x)
+    mostrar_matriz(x)
+
+    return x 
+
+
+def sustitucion_hacia_adelante(matriz_L:list, vector_b):
+    n = len(vector_b)
+    x = [0] * n
+
+    for i in range(n):
+        suma = 0
+
+        for j in range(i):
+
+            suma += matriz_L[i][j] * x[j]
+
+        x[i] = (vector_b[i] - suma) / matriz_L[i][i]
+
+    mostrar_matriz(x)
+    return x
 
 
 def armar_L(lista_multiplicadores:list, dimension:int):
@@ -123,25 +142,31 @@ def armar_L(lista_multiplicadores:list, dimension:int):
                 lista_multiplicadores.pop(0)
     return matriz_i
 
-
+  
 def main() -> None:
     "Tenemos una precision de 15 digitos"
     matriz = crear_matriz(4)
     soluciones_del_sistema = calcular_x(4)
+   
     vector_b = hallar_b(matriz, soluciones_del_sistema)
    
 
-    mat_ab = crear_matriz_aumentada(matriz,vector_b)
-    lista_multiplicadores = aplicar_gauss(mat_ab)
+    mat_ab = crear_matriz_aumentada(matriz,vector_b) #Concatenamos A y b para escalonar toda la mat junta
+    lista_multiplicadores = aplicar_gauss(mat_ab) # Aplicamos gauss y guardamos los multiplicadores
 
 
+    #mostrar_matriz(lista_multiplicadores)
+
     
-    U, y = np.hsplit(mat_ab, [-1])
-    mat_L = armar_L(lista_multiplicadores, 4)
-    
-    sustitucion_hacia_atras(mat_L,vector_b)
-    
-    print("\t")
-    mostrar_matriz(mat_ab)
+    #U, y = np.hsplit(mat_ab, [-1]) # separamos a U y Y siendo U nuestra mas triangulada y Y nuestro sol indep
+    mat_L = armar_L(lista_multiplicadores, 4) #Creamos la matriz L
+    #mostrar_matriz(mat_L)
+   
+
+    #x = sustitucion_hacia_adelante(mat_L, vector_b) #Sustitucion hacia adelante para la mat L
+    #sustitucion_hacia_atras(U,y)   Sustitucion hacia atras para la mat U
+   
+
+    #mostrar_matriz(mat_ab)
    
 main()
