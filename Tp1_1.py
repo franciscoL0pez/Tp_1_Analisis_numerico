@@ -69,8 +69,7 @@ def hallar_b(matriz:list , vector_x:list) -> list :
 
 def crear_matriz_aumentada(matriz:list, vector_b: list ) -> list :
     matriz_aumentada = np.concatenate((matriz,vector_b),axis=1)
-    #matriz_aumentada_copia = np.copy(matriz_aumentada)
-
+ 
     return matriz_aumentada
 
 
@@ -106,10 +105,15 @@ def sustitucion_hacia_atras(matriz:list, vector_b_escalonado:list):
             suma += matriz[i][j] * x[j]
 
         x[i] = (vector_b_escalonado[i] - suma) / matriz[i][i]
-    
-    mostrar_matriz(x)
 
     return x 
+
+def ceros_debajo_diagonal(u):
+    for i in range(len(u)):
+        for j in range(len(u)):
+            if i>j:
+                u[i][j]=0
+
 
 
 def sustitucion_hacia_adelante(matriz_L:list, vector_b):
@@ -125,7 +129,7 @@ def sustitucion_hacia_adelante(matriz_L:list, vector_b):
 
         x[i] = (vector_b[i] - suma) / matriz_L[i][i]
 
-    mostrar_matriz(x)
+    
     return x
 
 
@@ -142,31 +146,52 @@ def armar_L(lista_multiplicadores:list, dimension:int):
                 lista_multiplicadores.pop(0)
     return matriz_i
 
-  
+
+def calcular_residuo(vector_b, matriz, soluciones):
+    resultado = np.dot(matriz, soluciones)
+    r = np.linalg.norm(vector_b-resultado)/np.linalg.norm(vector_b)
+    return r
+
+
+def calcular_error_relativo(solucion_gauss, solucion_original):
+    e = np.linalg.norm(solucion_gauss-np.array(solucion_original))/np.linalg.norm(solucion_original)
+    return e
+
+
+def numero_de_condicion(𝛿x,x):
+    n =np.linalg.norm(𝛿x)/np.linalg.norm(x)
+    print(np.linalg.norm(𝛿x))
+    print(np.linalg.norm(x))
+    return n*(10**17)
+
+
 def main() -> None:
-    "Tenemos una precision de 15 digitos"
-    matriz = crear_matriz(4)
-    soluciones_del_sistema = calcular_x(4)
-   
+    "Tenemos una precision de 16 digitos"
+    n = 12
+
+    matriz = crear_matriz(n)
+    soluciones_del_sistema = calcular_x(n)
+
     vector_b = hallar_b(matriz, soluciones_del_sistema)
-   
-
     mat_ab = crear_matriz_aumentada(matriz,vector_b) #Concatenamos A y b para escalonar toda la mat junta
+ 
+
     lista_multiplicadores = aplicar_gauss(mat_ab) # Aplicamos gauss y guardamos los multiplicadores
-
-
-    #mostrar_matriz(lista_multiplicadores)
-
+    U, y = np.hsplit(mat_ab, [-1]) # separamos a U y Y siendo U nuestra mas triangulada y Y nuestro sol indep
+    ceros_debajo_diagonal(U) #Ponemos ceros debajo de U para mostrarla mejor
     
-    #U, y = np.hsplit(mat_ab, [-1]) # separamos a U y Y siendo U nuestra mas triangulada y Y nuestro sol indep
-    mat_L = armar_L(lista_multiplicadores, 4) #Creamos la matriz L
-    #mostrar_matriz(mat_L)
-   
 
-    #x = sustitucion_hacia_adelante(mat_L, vector_b) #Sustitucion hacia adelante para la mat L
-    #sustitucion_hacia_atras(U,y)   Sustitucion hacia atras para la mat U
-   
+    mat_L = armar_L(lista_multiplicadores, n) #Creamos la matriz L
+    x = sustitucion_hacia_atras(U,y)   #Sustitucion hacia atras para la mat U
 
-    #mostrar_matriz(mat_ab)
-   
+
+    r_relativo = calcular_residuo(vector_b, matriz, x) #caclulamos el residuo relativo
+    e_relativo = calcular_error_relativo(soluciones_del_sistema,x) # calculamos el error relativo
+
+
+    r_absoluto = vector_b - np.dot(matriz, x)
+    𝛿y = sustitucion_hacia_adelante(mat_L, r_absoluto)
+    𝛿x = sustitucion_hacia_atras(U, 𝛿y)
+
+
 main()
