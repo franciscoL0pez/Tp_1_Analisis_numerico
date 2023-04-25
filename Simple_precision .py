@@ -212,7 +212,7 @@ def numero_de_condicion(𝛿x,x):
 
 
 def main() -> None:
-    n = 12
+    n = 5
 
     matriz = crear_matriz(n)
 
@@ -233,9 +233,9 @@ def main() -> None:
     mat_L = armar_L(lista_multiplicadores, n )
     
     vector_b_escalonado = sustitucion_hacia_adelante(mat_L,vector_b)
-
+    
     vector_x = sustitucion_hacia_atras_simple_press(U, y)
-  
+    
     calcular_residuo_relativo(vector_b, matriz, vector_x)
  
     r_absoluto =(vector_b - np.dot(matriz, vector_x))
