@@ -3,6 +3,8 @@ import numpy as np
 from sigfig import round
 
 𝜋 = math.pi
+
+
 def crear_matriz ( tam_matriz:int )->None :
     k = 1
     m = 1
@@ -72,7 +74,6 @@ def crear_matriz_aumentada(matriz:list, vector_b: list ) -> list :
  
     return matriz_aumentada
 
-
 def aplicar_gauss(mat_ab:list) -> list :
     tam_de_mat_ab = np.shape(mat_ab)
     n = tam_de_mat_ab[0]  # filas
@@ -87,9 +88,7 @@ def aplicar_gauss(mat_ab:list) -> list :
             multiplicador  = mat_ab[k,i]/pivote
             mat_ab[k,:] = mat_ab[k,:] - mat_ab[i,:]*multiplicador
 
-            lista_multiplicadores.append(multiplicador)
-        
-
+            lista_multiplicadores.append(multiplicador) 
     return lista_multiplicadores
 
 
@@ -147,9 +146,10 @@ def armar_L(lista_multiplicadores:list, dimension:int):
     return matriz_i
 
 
-def calcular_residuo(vector_b, matriz, soluciones):
-    resultado = np.dot(matriz, soluciones)
+def calcular_residuo(vector_b, matriz, x_aproximadas):
+    resultado = np.dot(matriz, x_aproximadas)
     r = np.linalg.norm(vector_b-resultado)/np.linalg.norm(vector_b)
+
     return r
 
 
@@ -160,38 +160,11 @@ def calcular_error_relativo(solucion_gauss, solucion_original):
 
 def numero_de_condicion(𝛿x,x):
     n =np.linalg.norm(𝛿x)/np.linalg.norm(x)
-    print(np.linalg.norm(𝛿x))
-    print(np.linalg.norm(x))
-    return n*(10**17)
+    return n*(10**16)
 
 
 def main() -> None:
+
     "Tenemos una precision de 16 digitos"
-    n = 12
-
-    matriz = crear_matriz(n)
-    soluciones_del_sistema = calcular_x(n)
-
-    vector_b = hallar_b(matriz, soluciones_del_sistema)
-    mat_ab = crear_matriz_aumentada(matriz,vector_b) #Concatenamos A y b para escalonar toda la mat junta
- 
-
-    lista_multiplicadores = aplicar_gauss(mat_ab) # Aplicamos gauss y guardamos los multiplicadores
-    U, y = np.hsplit(mat_ab, [-1]) # separamos a U y Y siendo U nuestra mas triangulada y Y nuestro sol indep
-    ceros_debajo_diagonal(U) #Ponemos ceros debajo de U para mostrarla mejor
     
-
-    mat_L = armar_L(lista_multiplicadores, n) #Creamos la matriz L
-    x = sustitucion_hacia_atras(U,y)   #Sustitucion hacia atras para la mat U
-
-
-    r_relativo = calcular_residuo(vector_b, matriz, x) #caclulamos el residuo relativo
-    e_relativo = calcular_error_relativo(soluciones_del_sistema,x) # calculamos el error relativo
-
-
-    r_absoluto = vector_b - np.dot(matriz, x)
-    𝛿y = sustitucion_hacia_adelante(mat_L, r_absoluto)
-    𝛿x = sustitucion_hacia_atras(U, 𝛿y)
-
-
 main()

@@ -8,12 +8,12 @@ warnings.filterwarnings("ignore", category=UserWarning) #Ignoramos las advertenc
 # Armamos el codigo con simple precision 
 def simple_precision(numero:float):
     
-    simple_pres = round(numero,sigfigs = 4) #Trabajamos con simple presicion, redondeandoa  8 digitos significativas
+    simple_pres = round(numero,sigfigs = 8) #Trabajamos con simple presicion, redondeandoa  8 digitos significativas
         
     return simple_pres
 
 
-def crear_matriz ( tam_matriz:int )->None :
+def crear_matriz ( tam_matriz:int )->list :
     k = 1
     m = 1
 
@@ -24,7 +24,7 @@ def crear_matriz ( tam_matriz:int )->None :
 
         for j in range(tam_matriz):
             m = m + j  
-            a = simple_precision(1 / (k + m - 1))
+            a = simple_precision(1 / (k + m - 1)) 
 
             matriz[i].append(a) 
             m = 1
@@ -71,7 +71,7 @@ def hallar_b_con_simple_press(matriz:list , vector_x:list) -> list :
 
             a = (matriz[i][j]) * (vector_x[j])
             
-            lista.append( simple_precision(a) )
+            lista.append(simple_precision(a)) 
         
         c = sum(lista)
     
@@ -81,14 +81,14 @@ def hallar_b_con_simple_press(matriz:list , vector_x:list) -> list :
     return np.array(vector_b)
 
 
-
 def crear_matriz_aumentada(matriz:list, vector_b: list ) -> list :
     matriz_aumentada = np.concatenate((matriz,vector_b),axis=1)
     
 
-    for i in range(len(vector_b)):
+    for i in range(len(vector_b  )):
         matriz_aumentada[i][-1] = simple_precision(matriz_aumentada[i][-1])    #Ponemos en simple press los ultimos vecs de la mat ab
     
+
     return matriz_aumentada
 
 
@@ -105,6 +105,7 @@ def aplicar_s_p_a_columnas(columna:list,cant_de_filas:int)-> list:
     return columna
 
 
+
 def aplicar_gauss_simple_press(mat_ab:list) -> list :
     tam_de_mat_ab = np.shape(mat_ab)
     n = tam_de_mat_ab[0]  # filas
@@ -115,9 +116,9 @@ def aplicar_gauss_simple_press(mat_ab:list) -> list :
     for i in range(0,n-1,1):
         pivote   = mat_ab[i,i]
         adelante = i + 1
-
+        #Ultimo que saque
         for k in range(adelante,n,1):
-            multiplicador  = simple_precision(mat_ab[k,i]/pivote) 
+            multiplicador  =  simple_precision(mat_ab[k,i]/pivote) 
 
             x = aplicar_s_p_a_filas(mat_ab[k,:], m) 
             
@@ -135,11 +136,13 @@ def aplicar_gauss_simple_press(mat_ab:list) -> list :
     return lista_multiplicadores
 
 
+
 def ceros_debajo_diagonal(u):
     for i in range(len(u)):
         for j in range(len(u)):
             if i>j:
                 u[i][j]=0
+
 
 
 def armar_L(lista_multiplicadores:list, dimension:int):
@@ -155,6 +158,7 @@ def armar_L(lista_multiplicadores:list, dimension:int):
                 lista_multiplicadores.pop(0)
    
     return matriz_i
+
 
 
 def sustitucion_hacia_atras_simple_press(matriz:list, vector_b_escalonado:list):
@@ -194,7 +198,6 @@ def sustitucion_hacia_adelante(matriz_L:list, vector_b):
         x[i] = (vector_b[i] - suma) /  matriz_L[i][i]
         x[i][0] = simple_precision(x[i][0])
 
-    
     return x
 
 
@@ -205,49 +208,17 @@ def calcular_residuo_relativo(vector_b, matriz, soluciones):
     return r
 
 
-def numero_de_condicion(𝛿x,x):
-    n =np.linalg.norm(𝛿x)/np.linalg.norm(x)
+def calcular_error_relativo(solucion_gauss, solucion_original):
+    e = np.linalg.norm(solucion_gauss-np.array(solucion_original))/np.linalg.norm(solucion_original)
+    return simple_precision(e)
+
+
+def numero_de_condicion(𝛿x,x_aproximado):
+    n = np.linalg.norm(𝛿x)/np.linalg.norm(x_aproximado)
 
     return n*(10**8)
 
 
 def main() -> None:
-    n = 5
-
-    matriz = crear_matriz(n)
-
-    soluciones = calcular_x_simple_pres(n)
-   
-    vector_b = hallar_b_con_simple_press(matriz,soluciones)
-  
-    vector_b = aplicar_s_p_a_columnas(vector_b,n)
-    
-    mat_ab = crear_matriz_aumentada(matriz, vector_b)
-  
-    lista_multiplicadores = aplicar_gauss_simple_press(mat_ab)
-   
-    U, y = np.hsplit(mat_ab, [-1])
-    
-    ceros_debajo_diagonal(U)
-   
-    mat_L = armar_L(lista_multiplicadores, n )
-    
-    vector_b_escalonado = sustitucion_hacia_adelante(mat_L,vector_b)
-    
-    vector_x = sustitucion_hacia_atras_simple_press(U, y)
-    
-    calcular_residuo_relativo(vector_b, matriz, vector_x)
- 
-    r_absoluto =(vector_b - np.dot(matriz, vector_x))
- 
-    
-    𝛿y = sustitucion_hacia_adelante(mat_L, r_absoluto)
- 
-    𝛿x = sustitucion_hacia_atras_simple_press(U, 𝛿y)
-  
-    
-
-    
-
-
+    print("Fin del tp")
 main()
