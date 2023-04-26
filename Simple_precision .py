@@ -220,5 +220,6 @@ def numero_de_condicion(𝛿x,x_aproximado):
 
 
 def main() -> None:
+    
     print("Fin del tp")
 main()
